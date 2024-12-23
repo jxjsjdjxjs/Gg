@@ -1,20 +1,21 @@
-version: "1.0"
+version: 1
+
+stages:
+  - run_bot
 
 pipelines:
-  build:
+  run_bot:
+    stage: run_bot
     steps:
-      - name: Install Dependencies
+      - name: checkout_code
+        image: alpine/git:latest
+        commands:
+          - git clone $RAZOROPS_CLONE_URL
+          - cd your-project
+
+      - name: install_dependencies_and_run_bot
         image: python:3.9
         commands:
-          - python --version
-          - pip install --upgrade pip
           - pip install telebot flask aiogram pyTelegramBotAPI python-telegram-bot
           - pip install telebot pymongo aiohttp psutil
-      - name: Make Binary Executable
-        image: alpine:latest
-        commands:
-          - chmod +x Spike
-      - name: Start the Bot
-        image: python:3.9
-        commands:
-          - python3 soul.py
+          - python soul.py  # Replace 'bot.py' with your bot script's filename
