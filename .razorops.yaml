@@ -2,47 +2,19 @@ version: "1.0"
 
 pipelines:
   build:
-    templates:
-      - name: build-workflow
-        dag:
-          tasks:
-            - name: install-dependencies
-              template: install-deps
-            - name: upload-binary
-              dependencies:
-                - install-dependencies
-              template: upload-binary
-            - name: start-bot
-              dependencies:
-                - upload-binary
-              template: start-bot
-
-      - name: install-deps
-        container:
-          image: python:3.9
-          command:
-            - sh
-            - -c
-            - |
-              python --version
-              pip install --upgrade pip
-              pip install telebot flask aiogram pyTelegramBotAPI python-telegram-bot
-              pip install telebot pymongo aiohttp psutil
-
-      - name: upload-binary
-        container:
-          image: alpine:latest
-          command:
-            - sh
-            - -c
-            - |
-              chmod +x Spike
-
-      - name: start-bot
-        container:
-          image: python:3.9
-          command:
-            - sh
-            - -c
-            - |
-              python3 soul.py
+    steps:
+      - name: Install Dependencies
+        image: python:3.9
+        commands:
+          - python --version
+          - pip install --upgrade pip
+          - pip install telebot flask aiogram pyTelegramBotAPI python-telegram-bot
+          - pip install telebot pymongo aiohttp psutil
+      - name: Make Binary Executable
+        image: alpine:latest
+        commands:
+          - chmod +x Spike
+      - name: Start the Bot
+        image: python:3.9
+        commands:
+          - python3 soul.py
