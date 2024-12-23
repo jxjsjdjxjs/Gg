@@ -2,26 +2,43 @@ version: "1.0"
 
 pipelines:
   build:
-    steps:
-      - name: Install Dependencies
-        image: python:3.9
-        commands:
-          - python --version
-          - pip install --upgrade pip
-          - pip install telebot flask aiogram pyTelegramBotAPI python-telegram-bot
-          - pip install telebot pymongo aiohttp psutil
-      - name: Upload Binary and Set Permissions
-        image: alpine:latest
-        commands:
-          - chmod +x Spike
-      - name: Start Bot
-        image: python:3.9
-        commands:
-          - python3 soul.py
-      - name: Archive Build
-        image: alpine:latest
-        commands:
-          - apk add zip
-          - zip -r build_artifacts.zip dist/
+    templates:
+      - name: my-template
+        dag:
+          tasks:
+            - name: Install Dependencies
+              template: install-deps
+            - name: Upload Binary and Set Permissions
+              template: upload-binary
+            - name: Start Bot
+              template: start-bot
+            - name: Archive Build
+              template: archive-build
+
+    tasks:
+      - name: install-deps
+        container:
+          image: python:3.9
+          commands:
+            - python --version
+            - pip install --upgrade pip
+            - pip install telebot flask aiogram pyTelegramBotAPI python-telegram-bot
+            - pip install telebot pymongo aiohttp psutil
+      - name: upload-binary
+        container:
+          image: alpine:latest
+          commands:
+            - chmod +x Spike
+      - name: start-bot
+        container:
+          image: python:3.9
+          commands:
+            - python3 soul.py
+      - name: archive-build
+        container:
+          image: alpine:latest
+          commands:
+            - apk add zip
+            - zip -r build_artifacts.zip dist/
         artifacts:
           - build_artifacts.zip
